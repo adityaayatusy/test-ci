@@ -1,0 +1,42 @@
+#versi docker compose
+version: "3.4"
+
+#mendefinisikan layanan yang akan dijalankan sebagai container Docker
+services:
+  #nama layanan untuk aplikasi
+  item-app:
+    #nama container docker yang nanti akan dibuat.
+    container_name: item-app
+    #image docker yang akan digunakan untuk layanan item-app
+    image: "ghcr.io/adityaayatusy/a433-microservices/item-app:v1"
+    #membuka port pada container Docker dan meneruskannya ke port host
+    #dalam hal ini, port 8080 di dalam container akan diarahkan ke port 80 pada host.
+    ports:
+      - "80:8080"
+    #environment yang dikonfigurasi untuk layanan item-app
+    environment:
+      NODE_ENV: production
+      DB_HOST: item-db
+    #agar container selalu restart ketika terhenti.
+    restart: always
+    #memastikan item-app hanya berjalan setelah item-db diluncurkan.
+    depends_on:
+      - item-db
+  #nama layanan yang diberikan untuk database MongoDB.
+  item-db:
+    #nama container docker yang nanti akan dibuat.
+    container_name: item-db
+    #image docker yang akan digunakan untuk layanan item-db
+    image: mongo:3
+    #menghubungkan volume Docker dengan direktori di dalam container.
+    volumes:
+      - "item-db:/data/db"
+    #membuka port pada container Docker dan meneruskannya ke port host
+    #dalam hal ini, port 27017 di dalam container akan diarahkan ke port 27017 pada host.
+    ports:
+      - "27017:27017"
+#mendefinisikan volume yang akan digunakan oleh container Docker.
+volumes:
+  #nama volume yang diberikan
+  item-db:
+    name: item-db
