@@ -1,0 +1,28 @@
+version: 2.1 #versi dari konfigurasi CircleCI yang digunakan.
+jobs: #berisi definisi dari setiap job yang akan dijalankan dalam pipeline.
+  lint-dockerfile: #nama job
+    docker: #memnetukan image yang akan digunakan dalam job ini
+      - image: hadolint/hadolint #image hadolint/hadolint
+    steps: #langkah yang akan dijalankan dalam job
+      - run: hadolint Dockerfile #menjalankan perintah Hadolint
+
+  build-app-karsajobs-ui: #nama job
+    docker: #memnetukan image yang akan digunakan dalam job ini
+      - image: docker #image docker
+    steps: #langkah yang akan dijalankan dalam job
+      - checkout #melakukan checkout repository.
+      - run: #menjalankan perintah yang ada dibawah
+          name: Build and Push Image #nama langkah
+          #perintah yang akan dijalankan
+          command: |
+            docker build -t karsajobs-ui:latest .
+            docker tag karsajobs-ui:latest docker.pkg.github.com/adityaayatusy/a433-microservices/karsajobs-ui:latest
+            docker login docker.pkg.github.com -u adityaayatusy --password-stdin < ${PERSONAL_ACCESS_TOKEN}
+            docker push docker.pkg.github.com/adityaayatusy/a433-microservices/karsajobs-ui:latest
+
+workflows: #mendefinisikan alur kerja dari pipeline.
+  version: 2 #versi dari definisi workflows.
+  karsajobs-ui: #nama workflows
+    jobs: #menentukan urutan job-job yang akan dijalankan dalam workflows.
+      - lint-dockerfile
+      - build-app-karsajobs-ui
