@@ -13,13 +13,16 @@ jobs: #berisi definisi dari setiap job yang akan dijalankan dalam pipeline.
             curl -sL -o /usr/local/bin/hadolint "https://github.com/hadolint/hadolint/releases/download/v1.17.5/hadolint-$(uname -s)-$(uname -m)"
             chmod +x /usr/local/bin/hadolint
             hadolint Dockerfile
+      - setup_remote_docker: #add docker remote
+          version: 20.10.14 #version docker
+          docker_layer_caching: true #layer caching
       - run: #menjalankan perintah yang ada dibawah
           name: Build and Push Image #nama langkah
           #perintah yang akan dijalankan
           command: |
             docker build -t karsajobs-ui:latest .
             docker tag karsajobs-ui:latest docker.pkg.github.com/adityaayatusy/a433-microservices/karsajobs-ui:latest
-            docker login docker.pkg.github.com -u adityaayatusy --password-stdin < ${PERSONAL_ACCESS_TOKEN}
+            echo ${PERSONAL_ACCESS_TOKEN} | docker login docker.pkg.github.com -u adityaayatusy --password-stdin
             docker push docker.pkg.github.com/adityaayatusy/a433-microservices/karsajobs-ui:latest
 
 workflows: #mendefinisikan alur kerja dari pipeline.
